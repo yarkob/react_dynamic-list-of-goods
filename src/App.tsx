@@ -1,27 +1,67 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.scss';
 import { GoodsList } from './GoodsList';
 
-// import { getAll, get5First, getRed } from './api/goods';
+import { get5First, getAll, getRedGoods } from './api/goods';
+import { Good } from './types/Good';
 // or
 // import * as goodsAPI from './api/goods';
 
-export const App: React.FC = () => (
-  <div className="App">
-    <h1>Dynamic list of Goods</h1>
+export const App: React.FC = () => {
+  const [goods, setGoods] = useState<Good[]>([]);
+  const [buttonPressed, setButtonPressed] = useState('');
 
-    <button type="button" data-cy="all-button">
-      Load all goods
-    </button>
+  useEffect(() => {
+    let func;
 
-    <button type="button" data-cy="first-five-button">
-      Load 5 first goods
-    </button>
+    if (buttonPressed === '1') {
+      func = getAll();
+    }
 
-    <button type="button" data-cy="red-button">
-      Load red goods
-    </button>
+    if (buttonPressed === '2') {
+      func = get5First();
+    }
 
-    <GoodsList goods={[]} />
-  </div>
-);
+    if (buttonPressed === '3') {
+      func = getRedGoods();
+    }
+
+    if (func) {
+      func.then(data => {
+        return setGoods(data);
+      });
+    }
+  }, [buttonPressed]);
+
+  const onClick1 = () => {
+    return setButtonPressed('1');
+  };
+
+  const onClick2 = () => {
+    return setButtonPressed('2');
+  };
+
+  const onClick3 = () => {
+    return setButtonPressed('3');
+  };
+
+  return (
+    <div className="App">
+      <h1>Dynamic list of Goods</h1>
+
+      <button type="button" data-cy="all-button" onClick={onClick1}>
+        Load all goods
+      </button>
+
+      <button type="button" data-cy="first-five-button" onClick={onClick2}>
+        Load 5 first goods
+      </button>
+
+      <button type="button" data-cy="red-button" onClick={onClick3}>
+        Load red goods
+      </button>
+
+      {buttonPressed && <GoodsList goods={goods} />}
+    </div>
+  );
+};
